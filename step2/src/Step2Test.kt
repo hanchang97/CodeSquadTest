@@ -21,7 +21,7 @@ fun main(args: Array<String>){
     var readMap = ReadMap(changeTarget, mapStorage)
     readMap.convertMap()
 
-    mapStorage.startGame(2)
+    mapStorage.startGame(2)  //스테이지 입력
 }
 
 
@@ -42,7 +42,6 @@ class Map(var mapValueList : ArrayList<String>, var stageNum: Int){
             if(line.length > mapWidth)
                 mapWidth = line.length
         }
-        println("가로길이 : ${mapWidth}, 세로길이 : ${mapHeight}")
 
         mapIntArray = Array(mapHeight, {Array(mapWidth, {-1})})
     }
@@ -83,7 +82,7 @@ class Map(var mapValueList : ArrayList<String>, var stageNum: Int){
             }
             println()
         }
-        println()
+
     }
 }
 
@@ -166,6 +165,7 @@ class SetGame(){
             var playerLocation = findPlayerLocation(temp)
 
             while(true) {
+                println()
                 print("SOKOBAN> ")
                 var command = readLine()
 
@@ -173,7 +173,6 @@ class SetGame(){
                     println("no command : Bye~")
                     System.exit(0)
                 } else {
-                    println(command)
                     println()
                     PlayGame.playGame(playerLocation, temp, holeCoveredCheckArray, command!!)
                 }
@@ -199,8 +198,6 @@ class PlayGame(){
     companion object{
         fun playGame(playerLocation : PlayerLocation, map : Array<Array<Int>>,
                      holeCoveredCheckArray : Array<Array<Boolean>>,  command : String){
-
-            println("플레이어 위치 : ${playerLocation.playerY}, ${playerLocation.playerX}")
 
             for(i in 0..command.length-1){
                 if(command[i] == 'q'){  //종료
@@ -367,14 +364,6 @@ class PlayGame(){
                 println()
             }
             println()
-
-            for(i in 0..map.size-1){
-                for(j in 0..map[i].size-1){
-                    print(map[i][j])
-                    }
-                println()
-                }
-                println()
             }
         }
 
