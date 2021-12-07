@@ -83,6 +83,7 @@ class Map(var mapValueList : ArrayList<String>, var stageNum: Int){
             }
             println()
         }
+        println()
     }
 }
 
@@ -142,7 +143,79 @@ class GameStart(){
             map.printStage()
             map.printMap()
 
+            SetGame.setGame(map)
         }
     }
 }
+
+// 게임에 사용을 위해 맵을 복사하고 명령어 입력을 받는다
+class SetGame(){
+    companion object{
+        fun setGame(map : Map){
+            var temp = Array(map.mapHeight, {Array(map.mapWidth, {-1})})  // 게임 플레이시 사용을 위해 맵 복사
+            for(i in 0..map.mapHeight-1){
+                for(j in 0..map.mapWidth-1){
+                    temp[i][j] = map.mapIntArray[i][j]
+                }
+            }
+
+            while(true) {
+                print("SOKOBAN> ")
+                var command = readLine()
+
+                if (command?.length == 0) {  // 바로 종료
+                    println("no command : Bye~")
+                    System.exit(0)
+                } else {
+                    command = command!!.lowercase()  // 소문자 변환 / 문제의 입력에 대문자가 주어지는 경우 존재
+                    println(command)
+                    println()
+                    PlayGame.playGame(temp, command!!)
+                }
+            }
+
+        }
+    }
+}
+
+class PlayGame(){
+    companion object{
+        fun playGame(map : Array<Array<Int>>, command : String){
+            var playerLocation = findPlayerLocation(map)
+
+            println("플레이어 위치 : ${playerLocation.playerY}, ${playerLocation.playerX}")
+
+            for(i in 0..command.length-1){
+                if(command[i] == 'q'){  //종료
+                    println("Bye~")
+                    System.exit(0)
+                }
+                else{
+
+                }
+            }
+        }
+
+        fun findPlayerLocation(map: Array<Array<Int>>) : PlayerLocation{
+            for(i in 0..map.size-1){
+                for(j in 0..map[i].size-1){
+                    if(map[i][j] == 3){
+                        return PlayerLocation(i, j)
+                    }
+                }
+            }
+
+            return PlayerLocation(0, 0)
+        }
+
+    }
+
+
+}
+
+// 인덱스 기준 값
+data class PlayerLocation(
+    var playerY : Int,
+    var playerX : Int
+)
 
