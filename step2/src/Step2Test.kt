@@ -56,7 +56,6 @@ class Map(var mapValueList : ArrayList<String>, var stageNum: Int){
                     'O' -> mapIntArray[i][j] = 1
                     'o' -> mapIntArray[i][j] = 2
                     'P' -> mapIntArray[i][j] = 3
-                    '=' -> mapIntArray[i][j] = 4
                     ' ' -> mapIntArray[i][j] = 5
                 }
             }
@@ -201,6 +200,7 @@ class PlayGame(){
 
             for(i in 0..command.length-1){
                 if(command[i] == 'q'){  //종료
+                    println()
                     println("Bye~")
                     System.exit(0)
                 }
@@ -368,10 +368,6 @@ class PlayGame(){
         }
 
     }
-
-
-
-
 
 // 인덱스 기준 값
 data class PlayerLocation(
