@@ -27,28 +27,41 @@ fun main(args: Array<String>){
 
 class Map(var mapValueList : ArrayList<String>, var stageNum: Int){
 
-    var mapIntArray = ArrayList<ArrayList<Int>>()
+    //var mapIntArray = ArrayList<ArrayList<Int>>()
+    lateinit var mapIntArray : Array<Array<Int>>
+
+    var mapHeight = 0
+    var mapWidth = 0
+
+    fun findMapSize(){
+        mapHeight = mapValueList.size
+
+        for(i in 0..mapValueList.size-1){
+            var line = mapValueList[i]
+
+            if(line.length > mapWidth)
+                mapWidth = line.length
+        }
+        println("가로길이 : ${mapWidth}, 세로길이 : ${mapHeight}")
+
+        mapIntArray = Array(mapHeight, {Array(mapWidth, {-1})})
+    }
 
     fun converToIntArray(){
         for(i in 0..mapValueList.size-1){
             var line = mapValueList[i]
 
-            var lineIntList = ArrayList<Int>()
-
             for(j in 0..line.length-1){
                 when(line[j]){
-                    '#' -> lineIntList.add(0)
-                    'O' -> lineIntList.add(1)
-                    'o' -> lineIntList.add(2)
-                    'P' -> lineIntList.add(3)
-                    '=' -> lineIntList.add(4)
-                    ' ' -> lineIntList.add(5)
+                    '#' -> mapIntArray[i][j] = 0
+                    'O' -> mapIntArray[i][j] = 1
+                    'o' -> mapIntArray[i][j] = 2
+                    'P' -> mapIntArray[i][j] = 3
+                    '=' -> mapIntArray[i][j] = 4
+                    ' ' -> mapIntArray[i][j] = 5
                 }
             }
-
-            mapIntArray.add(lineIntList)
         }
-
 
     }
 
@@ -113,6 +126,7 @@ class MapStorage(){
 
     fun addMap(map: Map){
         mapList.add(map)
+        map.findMapSize()
         map.converToIntArray()
     }
 
@@ -131,3 +145,4 @@ class GameStart(){
         }
     }
 }
+
