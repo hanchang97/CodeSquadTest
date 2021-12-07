@@ -44,12 +44,14 @@ fun main(args: Array<String>){
 
     saveMap(changeTarget, saveArray)  // 변환 후 2차원 배열에 저장
 
-  /*  for(i in 0..Height-1){
+    // 변환 결과 출력
+   for(i in 0..Height-1){
         for(j in 0..Width-1){
             print(saveArray[i][j])
+            print(" ")
         }
         println()
-    }*/
+    }
 
     var stageNum = 1
 
