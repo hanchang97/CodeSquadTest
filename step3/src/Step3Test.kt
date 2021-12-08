@@ -1,24 +1,23 @@
+import java.io.File
+
 fun main(args: Array<String>){
 
-    var target = "Stage 1\n" +
-            "#####\n" +
-            "#OoP#\n" +
-            "#####\n" +
-            "=====\n" +
-            "Stage 2\n" +
-            "  #######\n" +
-            "###  O  ###\n" +
-            "#    o    #\n" +
-            "# Oo P oO #\n" +
-            "###  o  ###\n" +
-            " #   O  #\n" +
-            " ########"
 
-    var changeTarget = target.split("\n")
+    val listOfLines = mutableListOf<String>()
+    File("SokobanMap.txt").bufferedReader().useLines {
+                lines -> lines.forEach {
+            listOfLines.add(it)
+        }
+    }
+
+    if(listOfLines.size == 0){
+        println("map이 비었습니다")
+        System.exit(0)
+    }
 
     var mapStorage = MapStorage()
 
-    var readMap = ReadMap(changeTarget, mapStorage)
+    var readMap = ReadMap(listOfLines, mapStorage)
     readMap.convertMap()
 
     mapStorage.startGame(1)  //스테이지 입력
