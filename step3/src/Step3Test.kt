@@ -157,8 +157,8 @@ class SetGame(){
                 }
             }
 
-            // 구멍이 무언가에 덮여있는 상태인지 검사하기 위함
-            var holeCoveredCheckArray = Array(map.mapHeight, {Array(map.mapWidth, {false})})
+            // 구멍이 무언가에 덮여있는 상태인지 검사하기 위함 -> 안 덮임 = 1, 공이 덮음 = 2, 플레이어가 덮음 = 3
+            var holeCoveredCheckArray = Array(map.mapHeight, {Array(map.mapWidth, {1})})
 
             // 초기 플레이어 위치 찾기
             var playerLocation = findPlayerLocation(temp)
@@ -198,7 +198,7 @@ class SetGame(){
 class PlayGame(){
     companion object{
         fun playGame(mapStorage: MapStorage, currentStageNum : Int, playerLocation : PlayerLocation,
-                     map : Array<Array<Int>>, holeCoveredCheckArray : Array<Array<Boolean>>,  command : String){
+                     map : Array<Array<Int>>, holeCoveredCheckArray : Array<Array<Int>>,  command : String){
 
             for(i in 0..command.length-1){
                 if(command[i] == 'q'){  //종료
@@ -224,7 +224,7 @@ class PlayGame(){
 
 
         fun movePlayer(playerLocation: PlayerLocation, map : Array<Array<Int>>,
-                       holeCoveredCheckArray : Array<Array<Boolean>>, commandChar : Char){
+                       holeCoveredCheckArray : Array<Array<Int>>, commandChar : Char){
 
             if(commandChar == 'w' || commandChar == 'W'){  //위쪽
                 moveByCommand(0, playerLocation, map, holeCoveredCheckArray, commandChar, "위쪽")
@@ -242,7 +242,7 @@ class PlayGame(){
 
 
         fun moveByCommand(dir : Int, playerLocation: PlayerLocation, map: Array<Array<Int>>,
-                          holeCoveredCheckArray: Array<Array<Boolean>>, commandChar: Char, commandString : String){
+                          holeCoveredCheckArray: Array<Array<Int>>, commandChar: Char, commandString : String){
             // 상 하 좌 우
             var dirY = arrayOf(-1, 1, 0, 0)
             var dirX = arrayOf(0, 0, -1, 1)
@@ -256,9 +256,9 @@ class PlayGame(){
             if(map[nextY][nextX] == 5 || map[nextY][nextX] == 1){
 
                 // 플레이어 현재 위치 값 변화
-                if(holeCoveredCheckArray[currentY][currentX]){ // 현재 플레이어 위치에 구멍이 있었다면
+                if(holeCoveredCheckArray[currentY][currentX] == 3){ // 현재 플레이어 위치에 구멍이 있었다면
                     map[currentY][currentX] = 1  // 플레이어가 이동했으므로 구멍이 다시 보여야 하므로 1 할당
-                    holeCoveredCheckArray[currentY][currentX] = false // 구멍이 다시 보이므로 false로 변경
+                    holeCoveredCheckArray[currentY][currentX] = 1 // 구멍이 다시 보이므로 false로 변경
                 }
                 else{ // 현재 위치에 구멍 없었다면 현재 위치는 공백이 된다
                     map[currentY][currentX] = 5
@@ -267,7 +267,7 @@ class PlayGame(){
                 //플레이어 다음 위치 값 변화
                 if(map[nextY][nextX] == 1){  // 다음 위치가 구멍을 덮게 되는 위치
                     map[nextY][nextX] = 3
-                    holeCoveredCheckArray[nextY][nextX] = true  // 구멍이 덮였으므로 true 된다
+                    holeCoveredCheckArray[nextY][nextX] = 3  // 구멍이 덮였으므로 true 된다
                 }
                 else{ // 공백으로 이동
                     map[nextY][nextX] = 3
