@@ -121,7 +121,7 @@ class ReadMap(var mapLineList : List<String>, var mapStorage: MapStorage){
 
 class MapStorage(){
 
-    private var mapList = ArrayList<Map>()
+    var mapList = ArrayList<Map>()
 
     fun addMap(map: Map){
         mapList.add(map)
@@ -130,18 +130,18 @@ class MapStorage(){
     }
 
     fun startGame(stage: Int){
-        GameStart.startGame(mapList[stage-1])
+        GameStart.startGame(mapList[stage-1], this)
     }
 }
 
 class GameStart(){
 
     companion object{
-        fun startGame(map: Map){
+        fun startGame(map: Map, mapStorage: MapStorage){
             map.printStage()
             map.printMap()
 
-            SetGame.setGame(map)
+            SetGame.setGame(map, mapStorage)
         }
     }
 }
@@ -149,7 +149,7 @@ class GameStart(){
 // 게임에 사용을 위해 맵을 복사하고 명령어 입력을 받는다
 class SetGame(){
     companion object{
-        fun setGame(map : Map){
+        fun setGame(map : Map, mapStorage: MapStorage){
             var temp = Array(map.mapHeight, {Array(map.mapWidth, {-1})})  // 게임 플레이시 사용을 위해 맵 복사
             for(i in 0..map.mapHeight-1){
                 for(j in 0..map.mapWidth-1){
@@ -163,6 +163,8 @@ class SetGame(){
             // 초기 플레이어 위치 찾기
             var playerLocation = findPlayerLocation(temp)
 
+            var currentStageNum = map.stageNum  // 현재 스테이지 번호
+
             while(true) {
                 println()
                 print("SOKOBAN> ")
@@ -173,7 +175,7 @@ class SetGame(){
                     System.exit(0)
                 } else {
                     println()
-                    PlayGame.playGame(playerLocation, temp, holeCoveredCheckArray, command!!)
+                    PlayGame.playGame(mapStorage, currentStageNum, playerLocation, temp, holeCoveredCheckArray, command!!)
                 }
             }
 
@@ -195,14 +197,18 @@ class SetGame(){
 
 class PlayGame(){
     companion object{
-        fun playGame(playerLocation : PlayerLocation, map : Array<Array<Int>>,
-                     holeCoveredCheckArray : Array<Array<Boolean>>,  command : String){
+        fun playGame(mapStorage: MapStorage, currentStageNum : Int, playerLocation : PlayerLocation,
+                     map : Array<Array<Int>>, holeCoveredCheckArray : Array<Array<Boolean>>,  command : String){
 
             for(i in 0..command.length-1){
                 if(command[i] == 'q'){  //종료
                     println()
                     println("Bye~")
                     System.exit(0)
+                }
+                else if(command[i] == 'r'){ // 현재 스테이지 다시 시작
+                    println("현재 스테이지 다시 시작")
+                    mapStorage.startGame(currentStageNum)
                 }
                 else if(command[i] == 'w' || command[i] == 'a' || command[i] == 's' || command[i] == 'd'
                     || command[i] == 'W' || command[i] == 'A' || command[i] == 'S' || command[i] == 'D'){
