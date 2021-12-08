@@ -21,7 +21,7 @@ fun main(args: Array<String>){
     var readMap = ReadMap(changeTarget, mapStorage)
     readMap.convertMap()
 
-    mapStorage.startGame(2)  //스테이지 입력
+    mapStorage.startGame(1)  //스테이지 입력
 }
 
 
@@ -91,14 +91,11 @@ class ReadMap(var mapLineList : List<String>, var mapStorage: MapStorage){
     fun convertMap(){
         var currentStage = 0
         var mapValueList = ArrayList<String>()
-
         for(i in 0..mapLineList.size-1){
-
             var line = mapLineList[i]
 
-            if(line.contains("Stage")){
-                currentStage++
-            }
+            if(line.contains("Stage"))
+                    currentStage++
             else if(line.contains("=")){
                 var map = Map(mapValueList, currentStage)
                 mapStorage.addMap(map)
@@ -108,12 +105,9 @@ class ReadMap(var mapLineList : List<String>, var mapStorage: MapStorage){
                 mapValueList.add(line)
                 var map = Map(mapValueList, currentStage)
                 mapStorage.addMap(map)
-
             }
-            else{
+            else
                 mapValueList.add(line)
-            }
-
         }
     }
 
@@ -164,19 +158,13 @@ class SetGame(){
                 }
             }
 
-            // 구멍이 무언가에 덮여있는 상태인지 검사하기 위함 -> 안 덮임 = 1, 공이 덮음 = 2, 플레이어가 덮음 = 3
             var holeCoveredCheckArray = Array(map.mapHeight, {Array(map.mapWidth, {1})})
-
-            // 초기 플레이어 위치 찾기
             var playerLocation = findPlayerLocation(temp)
-
             var currentStageNum = map.stageNum  // 현재 스테이지 번호
 
             while(true) {
-                println()
-                print("SOKOBAN> ")
+                print("\nSOKOBAN> ")
                 var command = readLine()
-
                 if (command?.length == 0) {  // 바로 종료
                     println("no command : Bye~")
                     System.exit(0)
@@ -185,7 +173,6 @@ class SetGame(){
                     PlayGame.playGame(mapStorage, currentStageNum, playerLocation, temp, holeCoveredCheckArray, command!!)
                 }
             }
-
         }
 
         fun findPlayerLocation(map: Array<Array<Int>>) : PlayerLocation{
@@ -206,20 +193,16 @@ class PlayGame(){
     companion object{
         fun playGame(mapStorage: MapStorage, currentStageNum : Int, playerLocation : PlayerLocation,
                      map : Array<Array<Int>>, holeCoveredCheckArray : Array<Array<Int>>,  command : String){
-
             for(i in 0..command.length-1){
                 if(command[i] == 'q'){  //종료
-                    println()
-                    println("Bye~")
+                    println("\nBye~")
                     System.exit(0)
                 }
                 else if(command[i] == 'r'){ // 현재 스테이지 다시 시작
                     println("현재 스테이지 다시 시작")
                     mapStorage.startGame(currentStageNum)
                 }
-                else if(command[i] == 'w' || command[i] == 'a' || command[i] == 's' || command[i] == 'd'
-                    || command[i] == 'W' || command[i] == 'A' || command[i] == 'S' || command[i] == 'D'){
-
+                else if(command[i] == 'w' || command[i] == 'a' || command[i] == 's' || command[i] == 'd' || command[i] == 'W' || command[i] == 'A' || command[i] == 'S' || command[i] == 'D'){
                     movePlayer(mapStorage, currentStageNum, playerLocation, map, holeCoveredCheckArray, command[i])
                 }
                 else{  // 잘못된 명령어 = w,a,s,d,q에 어느것에도 해당하지 않음
@@ -253,140 +236,147 @@ class PlayGame(){
 
 
         fun moveByCommand(mapStorage: MapStorage, currentStageNum: Int, dir : Int, playerLocation: PlayerLocation,
-                          map: Array<Array<Int>>, holeCoveredCheckArray: Array<Array<Int>>, commandChar: Char,
-                          commandString : String){
-            // 상 하 좌 우
+                          map: Array<Array<Int>>, holeCoveredCheckArray: Array<Array<Int>>, commandChar: Char, commandString : String){
             var dirY = arrayOf(-1, 1, 0, 0)
             var dirX = arrayOf(0, 0, -1, 1)
-
-            var currentY = playerLocation.playerY
-            var currentX = playerLocation.playerX
-
             var nextY = playerLocation.playerY + dirY[dir]
             var nextX = playerLocation.playerX + dirX[dir]
-
             var ballsNextY = nextY + dirY[dir]
             var ballsNextX = nextX + dirX[dir]  // 공이 이동하는 경우 공의 다음 위치
 
-
-            if(map[nextY][nextX] == 5){
-                // 플레이어 현재 위치 값 변화
-                if(holeCoveredCheckArray[currentY][currentX] == 3){ // 현재 플레이어 위치에 구멍이 있었다면
-                    map[currentY][currentX] = 1  // 플레이어가 이동했으므로 구멍이 다시 보여야 하므로 1 할당
-                    holeCoveredCheckArray[currentY][currentX] = 1 // 구멍이 다시 보이므로 1을 할당
-                }
-                else{ // 현재 위치에 구멍 없었다면 현재 위치는 공백이 된다
-                    map[currentY][currentX] = 5
-                }
-
-                map[nextY][nextX] = 3  // 다음 위치에는 플레이어가 가게 되므로 3으로 갱신
-
+            if(map[nextY][nextX] == 5)
+                playerMoveToEmptySpace(map, holeCoveredCheckArray, commandChar, commandString, playerLocation.playerY, playerLocation.playerX,
+                nextY, nextX, ballsNextY, ballsNextX, playerLocation, mapStorage, currentStageNum)
+            else if(map[nextY][nextX] == 1)
+                playerMoveToHole(map, holeCoveredCheckArray, commandChar, commandString, playerLocation.playerY, playerLocation.playerX,
+                    nextY, nextX, ballsNextY, ballsNextX, playerLocation, mapStorage, currentStageNum)
+            else if(map[nextY][nextX] == 2) // 다음 위치에 공이 있는 경우
+                playerPushBall(map, holeCoveredCheckArray, commandChar, commandString, playerLocation.playerY, playerLocation.playerX,
+                    nextY, nextX, ballsNextY, ballsNextX, playerLocation, mapStorage, currentStageNum)
+            else{
                 printCurrentMap(map, holeCoveredCheckArray)
-                println("${commandChar}: ${commandString}으로 이동합니다.")
-
-                playerLocation.playerY = nextY
-                playerLocation.playerX = nextX  // 플레이어 위치 업데이트
-
-                checkStagePass(mapStorage, currentStageNum, map, holeCoveredCheckArray)  // 플레이어 이동 시 스테이지 패스 체크
-
+                println("${commandChar}: (경고!) 해당 명령을 수행할 수 없습니다!")
             }
-            else if(map[nextY][nextX] == 1){
-
-                // 플레이어 현재 위치 값 변화
-                if(holeCoveredCheckArray[currentY][currentX] == 3){ // 현재 플레이어 위치에 구멍이 있었다면
-                    map[currentY][currentX] = 1  // 플레이어가 이동했으므로 구멍이 다시 보여야 하므로 1 할당
-                    holeCoveredCheckArray[currentY][currentX] = 1 // 구멍이 다시 보이므로 false로 변경
-                }
-                else{ // 현재 위치에 구멍 없었다면 현재 위치는 공백이 된다
-                    map[currentY][currentX] = 5
-                }
-
-                //플레이어 다음 위치 값 변화
-                // 다음 위치가 구멍을 덮게 되는 위치
-                map[nextY][nextX] = 3
-                holeCoveredCheckArray[nextY][nextX] = 3  // 구멍이 플레이어로 덮였으므로 3으로 갱신
+        }
 
 
-                printCurrentMap(map, holeCoveredCheckArray)
-                println("${commandChar}: ${commandString}으로 이동합니다.")
+        fun playerMoveToEmptySpace(map: Array<Array<Int>>, holeCoveredCheckArray: Array<Array<Int>>, commandChar: Char, commandString : String,
+        currentY : Int, currentX : Int, nextY : Int, nextX : Int, ballSnextY : Int, ballSnextX : Int, playerLocation: PlayerLocation,
+        mapStorage: MapStorage, currentStageNum: Int){
 
-                playerLocation.playerY = nextY
-                playerLocation.playerX = nextX  // 플레이어 위치 업데이트
-
-                checkStagePass(mapStorage, currentStageNum, map, holeCoveredCheckArray)  // 플레이어 이동 시 스테이지 패스 체크
+            if(holeCoveredCheckArray[currentY][currentX] == 3){ // 현재 플레이어 위치에 구멍이 있었다면
+                map[currentY][currentX] = 1  // 플레이어가 이동했으므로 구멍이 다시 보여야 하므로 1 할당
+                holeCoveredCheckArray[currentY][currentX] = 1 // 구멍이 다시 보이므로 1을 할당
             }
-            else if(map[nextY][nextX] == 2){ // 다음 위치에 공이 있는 경우
+            else  // 현재 위치에 구멍 없었다면 현재 위치는 공백이 된다
+                map[currentY][currentX] = 5
 
-                if(map[ballsNextY][ballsNextX] == 5){ // 공 다음이 빈 공간인 경우
-                    // 공이 먼저 빈공간으로 이동
-                    map[ballsNextY][ballsNextX] = 2
+            map[nextY][nextX] = 3  // 다음 위치에는 플레이어가 가게 되므로 3으로 갱신
 
-                    // 플레이어는 기존 공의 위치로 이동
-                    map[nextY][nextX] = 3
-
-                    // 기존 공이 있던 위치가 구멍 위라면 이제 플레이어가 덮게 되므로 값을 갱신해준다
-                    if(holeCoveredCheckArray[nextY][nextX] == 2)
-                        holeCoveredCheckArray[nextY][nextX] = 3
-
-                    // 기존 플레이어가 있던 곳이 구멍 위였다면 이제 구멍이 보이게 된다
-                    if(holeCoveredCheckArray[currentY][currentX] == 3){
-                        holeCoveredCheckArray[currentY][currentX] = 1
-                        map[currentY][currentX] = 1
-                    }
-                    else{ // 그냥 빈 공간이었다면
-                        map[currentY][currentX] = 5
-                    }
-
-                    printCurrentMap(map, holeCoveredCheckArray)
-                    println("${commandChar}: ${commandString}으로 이동합니다.")
-
-                    playerLocation.playerY = nextY
-                    playerLocation.playerX = nextX  // 플레이어 위치 업데이트
-
-                    checkStagePass(mapStorage, currentStageNum, map, holeCoveredCheckArray)  // 플레이어 이동 시 스테이지 패스 체크
-                }
-                else if(map[ballsNextY][ballsNextX] == 1){ // 공 다음이 덮히지 않은 구멍인 경우
-
-                    // 공이 이동 후 구멍이 공에 덮힌다
-                    map[ballsNextY][ballsNextX] = 2
-                    holeCoveredCheckArray[ballsNextY][ballsNextX] = 2
-
-                    // 플레이어는 기존 공의 위치로 이동
-                    map[nextY][nextX] = 3
-
-                    // 기존 공이 있던 위치가 구멍 위라면 이제 플레이어가 덮게 되므로 값을 갱신해준다
-                    if(holeCoveredCheckArray[nextY][nextX] == 2)
-                        holeCoveredCheckArray[nextY][nextX] = 3
-
-                    // 기존 플레이어가 있던 곳이 구멍 위였다면 이제 구멍이 보이게 된다
-                    if(holeCoveredCheckArray[currentY][currentX] == 3){
-                        holeCoveredCheckArray[currentY][currentX] = 1
-                        map[currentY][currentX] = 1
-                    }
-                    else{ // 그냥 빈 공간이었다면
-                        map[currentY][currentX] = 5
-                    }
+            afterMove(map, holeCoveredCheckArray, commandChar, commandString, playerLocation, nextY, nextX,
+                mapStorage, currentStageNum)
+        }
 
 
-                    printCurrentMap(map, holeCoveredCheckArray)
-                    println("${commandChar}: ${commandString}으로 이동합니다.")
+        fun playerMoveToHole(map: Array<Array<Int>>, holeCoveredCheckArray: Array<Array<Int>>, commandChar: Char, commandString : String,
+                             currentY : Int, currentX : Int, nextY : Int, nextX : Int, ballSnextY : Int, ballSnextX : Int, playerLocation: PlayerLocation,
+                             mapStorage: MapStorage, currentStageNum: Int){
 
-                    playerLocation.playerY = nextY
-                    playerLocation.playerX = nextX  // 플레이어 위치 업데이트
+            if(holeCoveredCheckArray[currentY][currentX] == 3){ // 현재 플레이어 위치에 구멍이 있었다면
+                map[currentY][currentX] = 1  // 플레이어가 이동했으므로 구멍이 다시 보여야 하므로 1 할당
+                holeCoveredCheckArray[currentY][currentX] = 1 // 구멍이 다시 보이므로 false로 변경
+            }
+            else{ // 현재 위치에 구멍 없었다면 현재 위치는 공백이 된다
+                map[currentY][currentX] = 5
+            }
 
-                    checkStagePass(mapStorage, currentStageNum, map, holeCoveredCheckArray)  // 플레이어 이동 시 스테이지 패스 체크
-                }
-                else{
-                    printCurrentMap(map, holeCoveredCheckArray)
-                    println("${commandChar}: (경고!) 해당 명령을 수행할 수 없습니다!")
-                }
+            // 다음 위치가 구멍을 덮게 되는 위치
+            map[nextY][nextX] = 3
+            holeCoveredCheckArray[nextY][nextX] = 3  // 구멍이 플레이어로 덮였으므로 3으로 갱신
 
+            afterMove(map, holeCoveredCheckArray, commandChar, commandString, playerLocation, nextY, nextX,
+                mapStorage, currentStageNum)
+        }
+
+
+        fun playerPushBall(map: Array<Array<Int>>, holeCoveredCheckArray: Array<Array<Int>>, commandChar: Char, commandString : String,
+                           currentY : Int, currentX : Int, nextY : Int, nextX : Int, ballsNextY : Int, ballsNextX : Int, playerLocation: PlayerLocation,
+                           mapStorage: MapStorage, currentStageNum: Int){
+
+            if(map[ballsNextY][ballsNextX] == 5){ // 공 다음이 빈 공간인 경우
+                BallMoveToEmptySpace(map, holeCoveredCheckArray, commandChar, commandString, currentY, currentX,
+                    nextY, nextX, ballsNextY, ballsNextX, playerLocation, mapStorage, currentStageNum)
+            }
+            else if(map[ballsNextY][ballsNextX] == 1){ // 공 다음이 덮히지 않은 구멍인 경우
+                BallMoveToHole(map, holeCoveredCheckArray, commandChar, commandString, currentY, currentX,
+                    nextY, nextX, ballsNextY, ballsNextX, playerLocation, mapStorage, currentStageNum)
             }
             else{
                 printCurrentMap(map, holeCoveredCheckArray)
                 println("${commandChar}: (경고!) 해당 명령을 수행할 수 없습니다!")
             }
+        }
 
+
+        fun BallMoveToEmptySpace(map: Array<Array<Int>>, holeCoveredCheckArray: Array<Array<Int>>, commandChar: Char, commandString : String,
+                                 currentY : Int, currentX : Int, nextY : Int, nextX : Int, ballsNextY : Int, ballsNextX : Int, playerLocation: PlayerLocation,
+                                 mapStorage: MapStorage, currentStageNum: Int){
+
+            map[ballsNextY][ballsNextX] = 2 // 공이 먼저 빈공간으로 이동
+            map[nextY][nextX] = 3 // 플레이어는 기존 공의 위치로 이동
+            // 기존 공이 있던 위치가 구멍 위라면 이제 플레이어가 덮게 되므로 값을 갱신해준다
+            if(holeCoveredCheckArray[nextY][nextX] == 2)
+                holeCoveredCheckArray[nextY][nextX] = 3
+
+            // 기존 플레이어가 있던 곳이 구멍 위였다면 이제 구멍이 보이게 된다
+            if(holeCoveredCheckArray[currentY][currentX] == 3){
+                holeCoveredCheckArray[currentY][currentX] = 1
+                map[currentY][currentX] = 1
+            }
+            else{ // 그냥 빈 공간이었다면
+                map[currentY][currentX] = 5
+            }
+
+            afterMove(map, holeCoveredCheckArray, commandChar, commandString, playerLocation, nextY, nextX,
+                mapStorage, currentStageNum)
+        }
+
+
+        fun BallMoveToHole(map: Array<Array<Int>>, holeCoveredCheckArray: Array<Array<Int>>, commandChar: Char, commandString : String,
+                           currentY : Int, currentX : Int, nextY : Int, nextX : Int, ballsNextY : Int, ballsNextX : Int, playerLocation: PlayerLocation,
+                           mapStorage: MapStorage, currentStageNum: Int){
+            // 공이 이동 후 구멍이 공에 덮힌다
+            map[ballsNextY][ballsNextX] = 2
+            holeCoveredCheckArray[ballsNextY][ballsNextX] = 2
+            // 플레이어는 기존 공의 위치로 이동
+            map[nextY][nextX] = 3
+
+            // 기존 공이 있던 위치가 구멍 위라면 이제 플레이어가 덮게 되므로 값을 갱신해준다
+            if(holeCoveredCheckArray[nextY][nextX] == 2)
+                holeCoveredCheckArray[nextY][nextX] = 3
+            // 기존 플레이어가 있던 곳이 구멍 위였다면 이제 구멍이 보이게 된다
+            if(holeCoveredCheckArray[currentY][currentX] == 3){
+                holeCoveredCheckArray[currentY][currentX] = 1
+                map[currentY][currentX] = 1
+            }
+            else{ // 그냥 빈 공간이었다면
+                map[currentY][currentX] = 5
+            }
+
+          afterMove(map, holeCoveredCheckArray, commandChar, commandString, playerLocation, nextY, nextX,
+          mapStorage, currentStageNum)
+        }
+
+        fun afterMove(map : Array<Array<Int>>, holeCoveredCheckArray: Array<Array<Int>>, commandChar: Char, commandString: String,
+        playerLocation: PlayerLocation, nextY: Int, nextX: Int, mapStorage: MapStorage, currentStageNum: Int){
+
+            printCurrentMap(map, holeCoveredCheckArray)
+            println("${commandChar}: ${commandString}으로 이동합니다.")
+
+            playerLocation.playerY = nextY
+            playerLocation.playerX = nextX  // 플레이어 위치 업데이트
+
+            checkStagePass(mapStorage, currentStageNum, map, holeCoveredCheckArray)  // 플레이어 이동 시 스테이지 패스 체크
         }
 
 
@@ -410,7 +400,6 @@ class PlayGame(){
                 println()
             }
             println()
-
         }
 
         fun checkStagePass(mapStorage: MapStorage, currentStageNum: Int,
@@ -418,15 +407,14 @@ class PlayGame(){
             var isPass = true
             for(i in 0..map.size-1){
                 for(j in 0..map[i].size-1){
-                    if(map[i][j] == 2){
-                        if(holeCoveredCheckArray[i][j] != 2){
-                            isPass = false
-                        }
+                    if(map[i][j] == 2 && holeCoveredCheckArray[i][j] != 2){
+                        isPass = false
                     }
                 }
             }
             if(isPass){ // 현재 맵에서 모든 공의 위치가 구멍 위라면 곧 통과
                 println("빠밤! Stage ${currentStageNum} 클리어!")
+                println()
                 mapStorage.startGame(currentStageNum+1)
             }
         }
