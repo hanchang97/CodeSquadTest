@@ -2,7 +2,6 @@ import java.io.File
 
 fun main(args: Array<String>){
 
-
     val listOfLines = mutableListOf<String>()
     File("SokobanMap.txt").bufferedReader().useLines {
                 lines -> lines.forEach {
@@ -26,7 +25,6 @@ fun main(args: Array<String>){
 
 class Map(var mapValueList : ArrayList<String>, var stageNum: Int){
 
-    //var mapIntArray = ArrayList<ArrayList<Int>>()
     lateinit var mapIntArray : Array<Array<Int>>
 
     var mapHeight = 0
