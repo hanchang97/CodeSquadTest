@@ -371,12 +371,12 @@ class PlayGame(){
             printCurrentMap(map, holeCoveredCheckArray)
             println("${commandChar}: ${commandString}으로 이동합니다.")
 
-            MoveCount.moveCount++ // 턴수 증가
+            MoveCount.moveCount++
 
             playerLocation.playerY = nextY
-            playerLocation.playerX = nextX  // 플레이어 위치 업데이트
+            playerLocation.playerX = nextX
 
-            checkStagePass(mapStorage, currentStageNum, map, holeCoveredCheckArray)  // 플레이어 이동 시 스테이지 패스 체크
+            checkStagePass(mapStorage, currentStageNum, map, holeCoveredCheckArray)
         }
 
 
@@ -412,11 +412,11 @@ class PlayGame(){
                     }
                 }
             }
-            if(isPass){ // 현재 맵에서 모든 공의 위치가 구멍 위라면 곧 통과
-                println("빠밤! Stage ${currentStageNum} 클리어!")
+            if(isPass){
+                println("\n빠밤! Stage ${currentStageNum} 클리어!")
                 println("턴수: ${MoveCount.moveCount}")
                 println()
-                MoveCount.clearCount() // 턴수 초기화
+                MoveCount.clearCount()
                 mapStorage.startGame(currentStageNum+1)
             }
         }
