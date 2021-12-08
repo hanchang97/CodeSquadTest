@@ -388,10 +388,7 @@ class PlayGame(){
                         0 -> print('#')
                         1 -> print('O')
                         2 -> {
-                            if(holeCoveredCheckArray[i][j] == 2)
-                                print('0')
-                            else
-                                print('o')
+                            printBall(holeCoveredCheckArray[i][j])
                         }
                         3 -> print('P')
                         5 -> print(' ')
@@ -401,6 +398,14 @@ class PlayGame(){
             }
             println()
         }
+
+        fun printBall(value:Int){
+            if(value == 2)
+                print('0')
+            else
+                print('o')
+        }
+
 
         fun checkStagePass(mapStorage: MapStorage, currentStageNum: Int,
                            map: Array<Array<Int>>, holeCoveredCheckArray: Array<Array<Int>>){
