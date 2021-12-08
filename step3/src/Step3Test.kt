@@ -197,6 +197,7 @@ class PlayGame(){
                 }
                 else if(command[i] == 'r'){ // 현재 스테이지 다시 시작
                     println("현재 스테이지 다시 시작")
+                    MoveCount.clearCount() // 스테이지 재시작 시 턴수 초기화
                     mapStorage.startGame(currentStageNum)
                 }
                 else if(command[i] == 'w' || command[i] == 'a' || command[i] == 's' || command[i] == 'd' || command[i] == 'W' || command[i] == 'A' || command[i] == 'S' || command[i] == 'D'){
